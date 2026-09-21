@@ -46,16 +46,6 @@ app.use(
   cors({
     origin: function (origin, callback) {
       if (!origin || allowedOrigins.includes(origin)) {
-        app.get("/api/media/:filename", protect, (req, res) => {
-          const filename = path.basename(req.params.filename);
-          const filePath = path.resolve(
-            __dirname,
-            "../uploads/documents",
-            filename,
-          );
-          if (!fs.existsSync(filePath)) return res.status(404).end();
-          res.sendFile(filePath);
-        });
         callback(null, true);
       } else {
         if (process.env.NODE_ENV === "production") {
