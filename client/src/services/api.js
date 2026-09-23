@@ -3,7 +3,7 @@
  * Handles HTTP-only cookie credentials, standard headers, response parsing, and errors.
  */
 
-const API_BASE = ''; // Relies on Vite proxy to target http://localhost:5000 in dev and backend origin in prod
+const API_BASE = import.meta.env.VITE_API_URL || ''; // Relies on relative API routing or configured VITE_API_URL
 
 export async function request(endpoint, options = {}) {
   const {

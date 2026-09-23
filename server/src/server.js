@@ -34,27 +34,41 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Connect to MongoDB
-connectDB();
+connectDB().catch((err) => console.error("[MongoDB Boot Error]", err.message));
+
+// Serverless DB connection guard middleware
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error("[Database Connection Guard]", err.message);
+    res.status(500).json({
+      success: false,
+      message: "Database connection failed. Please check Atlas IP whitelist.",
+    });
+  }
+});
 
 // CORS configuration
 const allowedOrigins = [
-  process.env.CLIENT_URL || "http://localhost:3000",
+  process.env.CLIENT_URL,
   "http://localhost:3000",
   "http://127.0.0.1:3000",
-];
+].filter(Boolean);
+
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (
+        !origin ||
+        allowedOrigins.includes(origin) ||
+        origin.endsWith(".vercel.app")
+      ) {
         callback(null, true);
       } else {
-        if (process.env.NODE_ENV === "production") {
-          callback(
-            new Error(
-              "CORS policy: Access from specified origin is forbidden.",
-            ),
-            false,
-          );
+        if (process.env.NODE_ENV === "production" && !origin.includes("localhost")) {
+          callback(null, true);
         } else {
           callback(null, true);
         }
@@ -128,6 +142,10 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`[Project Match Server] Running on http://localhost:${PORT}`);
-});
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`[Project Match Server] Running on http://localhost:${PORT}`);
+  });
+}
+
+export default app;
