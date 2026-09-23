@@ -9,6 +9,10 @@
     "dev": "node --watch src/server.js",
     "seed": "node src/seed.js"
   },
+  "allowScripts": {
+    "@google/genai": true,
+    "protobufjs": true
+  },
   "dependencies": {
     "@google/genai": "^2.22.0",
     "bcryptjs": "^2.4.3",

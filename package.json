@@ -9,6 +9,11 @@
     "vercel-build": "npm install --prefix client && npm run build --prefix client",
     "start": "node server/src/server.js"
   },
+  "allowScripts": {
+    "@google/genai": true,
+    "protobufjs": true,
+    "esbuild": true
+  },
   "dependencies": {
     "@google/genai": "^2.22.0",
     "bcryptjs": "^2.4.3",
