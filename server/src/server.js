@@ -112,7 +112,10 @@ app.use("/api", roleRoutes);
 
 app.get("/api/media/:filename", protect, (req, res) => {
   const filename = path.basename(req.params.filename);
-  const filePath = path.resolve(__dirname, "../uploads/documents", filename);
+  const baseUploadDir = process.env.VERCEL
+    ? path.join('/tmp', 'uploads', 'documents')
+    : path.resolve(__dirname, "../uploads/documents");
+  const filePath = path.resolve(baseUploadDir, filename);
   if (!fs.existsSync(filePath)) return res.status(404).end();
   res.sendFile(filePath);
 });

@@ -95,23 +95,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const loginWithGoogle = async (googlePayload) => {
-    try {
-      const data = await authApi.loginWithGoogle(googlePayload);
-      if (data.success && data.user) {
-        if (data.token) {
-          localStorage.setItem('pm_token', data.token);
-        }
-        localStorage.setItem('pm_user', JSON.stringify(data.user));
-        setUser(data.user);
-        const normalizedRole = String(data.user.role).toLowerCase().trim();
-        return { success: true, user: data.user, role: normalizedRole };
-      }
-      return { success: false, message: data.message || 'Google authentication failed.' };
-    } catch (err) {
-      return { success: false, message: 'Google connection failed.' };
-    }
-  };
 
   const logout = async () => {
     try {
@@ -154,7 +137,6 @@ export const AuthProvider = ({ children }) => {
         loading,
         login,
         register,
-        loginWithGoogle,
         logout,
         checkSession,
         getRoleDashboardPath

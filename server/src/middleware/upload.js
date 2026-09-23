@@ -3,9 +3,16 @@ import path from 'path';
 import fs from 'fs';
 import crypto from 'crypto';
 
-const uploadDir = path.resolve('uploads/documents');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+const uploadDir = process.env.VERCEL
+  ? path.join('/tmp', 'uploads', 'documents')
+  : path.resolve('uploads/documents');
+
+try {
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+} catch (err) {
+  console.warn('[Upload Directory Warning]:', err.message);
 }
 
 const storage = multer.diskStorage({

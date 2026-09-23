@@ -1,7 +1,6 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import { OAuth2Client } from "google-auth-library";
 import User from "../models/User.js";
 import StudentProfile from "../models/StudentProfile.js";
 import MentorProfile from "../models/MentorProfile.js";
@@ -518,125 +517,7 @@ router.post("/reset-password/:token", authLimiter, async (req, res) => {
 });
 
 // ==========================================
-// 5. GOOGLE AUTHENTICATION (CRYPTOGRAPHIC VERIFICATION)
-// ==========================================
-// @route POST /api/auth/google
-router.post("/google", authLimiter, async (req, res) => {
-  try {
-    const { credential } = req.body;
-
-    if (!credential) {
-      return res.status(400).json({
-        success: false,
-        message: "Google identity credential token is required.",
-        code: "CREDENTIAL_REQUIRED",
-      });
-    }
-
-    // Phase 4 Requirement: Reject unverified token decoding if GOOGLE_CLIENT_ID is missing
-    const googleClientId = process.env.GOOGLE_CLIENT_ID;
-    if (!googleClientId) {
-      return res.status(503).json({
-        success: false,
-        message:
-          "Google Authentication is currently unconfigured on this server. Please sign in with your email and password.",
-        code: "GOOGLE_AUTH_UNCONFIGURED",
-      });
-    }
-
-    let googleId, email, name, avatar;
-
-    try {
-      const client = new OAuth2Client(googleClientId);
-      const ticket = await client.verifyIdToken({
-        idToken: credential,
-        audience: googleClientId,
-      });
-      const payload = ticket.getPayload();
-      googleId = payload.sub;
-      email = payload.email;
-      name = payload.name;
-      avatar = payload.picture || "";
-    } catch (verifyErr) {
-      console.error(
-        "Cryptographic Google ID token verification failed:",
-        verifyErr.message,
-      );
-      return res.status(401).json({
-        success: false,
-        message:
-          "Google verification failed: The provided token is invalid or has expired.",
-        code: "INVALID_GOOGLE_TOKEN",
-      });
-    }
-
-    if (!email) {
-      return res.status(400).json({
-        success: false,
-        message: "Google account email could not be verified.",
-        code: "EMAIL_VERIFICATION_FAILED",
-      });
-    }
-
-    const normalizedEmail = email.trim().toLowerCase();
-
-    // Find existing user by Google ID or by email
-    let user = await User.findOne({
-      $or: [{ googleId: googleId }, { email: normalizedEmail }],
-    });
-
-    if (user) {
-      if (!user.googleId) {
-        user.googleId = googleId;
-        user.authProvider = "google";
-        if (avatar && !user.avatar) user.avatar = avatar;
-        await user.save();
-      }
-
-      if (user.isActive === false) {
-        return res.status(403).json({
-          success: false,
-          message: "Your account has been deactivated by administration.",
-          code: "ACCOUNT_DEACTIVATED",
-        });
-      }
-    } else {
-      user = await User.create({
-        name: name || normalizedEmail.split("@")[0],
-        email: normalizedEmail,
-        role: "student",
-        authProvider: "google",
-        googleId: googleId,
-        avatar: avatar || "",
-        department: "Computer Engineering",
-        college:
-          "Vidya Pratishthan's Kamalnayan Bajaj Institute of Engineering and Technology, Baramati",
-        verificationStatus: "Verified",
-      });
-
-      await StudentProfile.create({
-        user: user._id,
-        college: user.college,
-        department: user.department,
-        skills: [],
-        interests: [],
-        profileCompletion: 25,
-      });
-    }
-
-    await sendTokenResponse(user, 200, res);
-  } catch (error) {
-    console.error("Google auth error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Google authentication failed: " + error.message,
-      code: "SERVER_ERROR",
-    });
-  }
-});
-
-// ==========================================
-// 6. CURRENT USER API
+// 5. CURRENT USER API
 // ==========================================
 // @route GET /api/auth/me
 router.get("/me", protect, async (req, res) => {
