@@ -30,7 +30,10 @@ getJwtSecret();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+import mongoose from "mongoose";
+
 const app = express();
+app.set("trust proxy", 1);
 const PORT = process.env.PORT || 5000;
 
 // Connect to MongoDB (non-serverless local dev)
@@ -120,6 +123,7 @@ app.get("/api/health", (req, res) => {
     status: "online",
     platform: "Project Match — Where Ideas Find the Right Team",
     version: "1.0.0",
+    database: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
     timestamp: new Date(),
   });
 });

@@ -12,6 +12,7 @@ export const authLimiter = rateLimit({
   max: 20,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: false,
   message: formatRateLimitError('Too many authentication attempts. Please try again in 15 minutes.', 'AUTH_RATE_LIMIT_EXCEEDED')
 });
 
@@ -21,6 +22,7 @@ export const aiLimiter = rateLimit({
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: false,
   message: formatRateLimitError('AI assistant request limit exceeded. Please wait a few moments before asking another question.', 'AI_RATE_LIMIT_EXCEEDED')
 });
 
@@ -30,6 +32,7 @@ export const messageLimiter = rateLimit({
   max: 60,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: false,
   message: formatRateLimitError('You are sending messages too quickly. Please pause for a moment.', 'MESSAGE_RATE_LIMIT_EXCEEDED')
 });
 
@@ -39,6 +42,7 @@ export const communityLimiter = rateLimit({
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: false,
   message: formatRateLimitError('Community posting limit reached. Please wait before creating more posts.', 'COMMUNITY_RATE_LIMIT_EXCEEDED')
 });
 
@@ -48,5 +52,6 @@ export const generalLimiter = rateLimit({
   max: 300,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: false,
   message: formatRateLimitError('Too many requests. Please slow down.', 'API_RATE_LIMIT_EXCEEDED')
 });

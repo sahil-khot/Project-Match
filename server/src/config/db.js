@@ -10,8 +10,7 @@ export const connectDB = async () => {
   const uri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/project_match';
   try {
     const conn = await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 5000,
-      bufferCommands: false,
+      serverSelectionTimeoutMS: 10000,
     });
     cachedConn = conn;
     console.log(`[MongoDB] Connected: ${conn.connection.host}/${conn.connection.name}`);
@@ -23,7 +22,6 @@ export const connectDB = async () => {
         console.log('[MongoDB] Attempting fallback to local MongoDB (mongodb://127.0.0.1:27017/project_match)...');
         const conn = await mongoose.connect('mongodb://127.0.0.1:27017/project_match', {
           serverSelectionTimeoutMS: 5000,
-          bufferCommands: false,
         });
         cachedConn = conn;
         console.log(`[MongoDB] Fallback connected: ${conn.connection.host}/${conn.connection.name}`);

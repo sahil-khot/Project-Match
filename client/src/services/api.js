@@ -41,7 +41,17 @@ export async function request(endpoint, options = {}) {
       return { success: true };
     }
 
-    const data = await response.json().catch(() => ({}));
+    let data = {};
+    try {
+      const rawText = await response.text();
+      try {
+        data = JSON.parse(rawText);
+      } catch {
+        data = { message: rawText ? (rawText.length > 200 ? rawText.slice(0, 200) + '...' : rawText) : `Request failed with status ${response.status}` };
+      }
+    } catch {
+      data = {};
+    }
 
     if (!response.ok) {
       const errorMessage = data.message || `Request failed with status ${response.status}`;
