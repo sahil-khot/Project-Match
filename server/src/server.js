@@ -33,8 +33,10 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Connect to MongoDB
-connectDB().catch((err) => console.error("[MongoDB Boot Error]", err.message));
+// Connect to MongoDB (non-serverless local dev)
+if (!process.env.VERCEL) {
+  connectDB().catch((err) => console.error("[MongoDB Boot Error]", err.message));
+}
 
 // Serverless DB connection guard middleware
 app.use(async (req, res, next) => {
